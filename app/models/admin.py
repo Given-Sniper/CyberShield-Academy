@@ -1,9 +1,10 @@
+from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from app.extensions import db
 
 
-class Admin(db.Model):
+class Admin(UserMixin, db.Model):
     __tablename__ = 'admins'
 
     id = db.Column(db.BigInteger, primary_key=True)
@@ -19,6 +20,9 @@ class Admin(db.Model):
     quizzes = db.relationship('Quiz', back_populates='created_by_admin', lazy='dynamic')
     phishing_examples = db.relationship('PhishingExample', back_populates='created_by_admin', lazy='dynamic')
     activities = db.relationship('Activity', back_populates='admin', lazy='dynamic')
+
+    def get_id(self):
+        return f'admin:{self.id}'
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
