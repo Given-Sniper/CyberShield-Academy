@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CyberShield Academy{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme_dark_neon.css') }}">
+  <style>
+    body { background: #0a0a0a; color: #e0e0e0; }
+    a { color: #00d4ff; }
+    .accent-green { color: #00ff88; }
+    .accent-blue { color: #00d4ff; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      {% block nav_items %}
+      <span class="accent-green">CyberShield Academy</span>
+      {% endblock %}
+    </nav>
+  </header>
+
+  <section id="flash-messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li class="flash-{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+  </section>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    {% block footer %}
+    <p>&copy; {{ 2026 }} CyberShield Academy</p>
+    {% endblock %}
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
