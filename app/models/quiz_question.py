@@ -4,7 +4,7 @@ from app.extensions import db
 class QuizQuestion(db.Model):
     __tablename__ = 'quiz_questions'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     quiz_id = db.Column(db.BigInteger, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
     question_text = db.Column(db.Text, nullable=False)
     option_a = db.Column(db.String(255), nullable=False)

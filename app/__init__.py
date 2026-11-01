@@ -1,34 +1,48 @@
 from flask import Flask, render_template
 
-from app.blueprints.admin import admin_bp
-from app.blueprints.auth import auth_bp
-from app.blueprints.dashboard import dashboard_bp
-from app.blueprints.lessons import lessons_bp
-from app.blueprints.main import main_bp
-from app.blueprints.phishing import phishing_bp
-from app.blueprints.quizzes import quizzes_bp
+from config import DevelopmentConfig
 from app.extensions import csrf, db, login_manager, mail, migrate
 
 
-def init_extensions(app: Flask) -> None:
+def create_app(config_class=DevelopmentConfig):
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_object(config_class)
+
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
     csrf.init_app(app)
     mail.init_app(app)
 
+    with app.app_context():
+        from app.models import (  # noqa: F401
+            activity,
+            admin,
+            lesson,
+            phishing_example,
+            quiz,
+            quiz_question,
+            quiz_result,
+            user,
+            user_lesson,
+        )
 
-def register_blueprints(app: Flask) -> None:
+    from app.blueprints.main import main_bp
+    from app.blueprints.auth import auth_bp
+    from app.blueprints.dashboard import dashboard_bp
+    from app.blueprints.lessons import lessons_bp
+    from app.blueprints.quizzes import quizzes_bp
+    from app.blueprints.phishing import phishing_bp
+    from app.blueprints.admin import admin_bp
+
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(dashboard_bp)
-    app.register_blueprint(lessons_bp)
-    app.register_blueprint(quizzes_bp)
-    app.register_blueprint(phishing_bp)
-    app.register_blueprint(admin_bp)
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(dashboard_bp, url_prefix='/dashboard')
+    app.register_blueprint(lessons_bp, url_prefix='/lessons')
+    app.register_blueprint(quizzes_bp, url_prefix='/quizzes')
+    app.register_blueprint(phishing_bp, url_prefix='/phishing')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
 
-
-def register_error_handlers(app: Flask) -> None:
     @app.errorhandler(403)
     def forbidden(_error):
         return render_template('errors/403.html'), 403
@@ -38,18 +52,32 @@ def register_error_handlers(app: Flask) -> None:
         return render_template('errors/404.html'), 404
 
     @app.errorhandler(500)
-    def server_error(_error):
+    def internal_server_error(_error):
         return render_template('errors/500.html'), 500
 
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models.admin import Admin
+        from app.models.user import User
 
-def create_app(config_class):
-    app = Flask(__name__)
-    app.config.from_object(config_class)
+        if not user_id:
+            return None
 
-    init_extensions(app)
-    register_blueprints(app)
-    register_error_handlers(app)
+        try:
+            scope, raw_id = user_id.split(':', 1)
+            obj_id = int(raw_id)
+        except (ValueError, AttributeError):
+            return None
 
-    from app import models  # noqa: F401
+        if scope == 'admin':
+            account = db.session.get(Admin, obj_id)
+            return account if account and account.is_active else None
+        if scope == 'user':
+            account = db.session.get(User, obj_id)
+            return account if account and account.is_active else None
+        return None
+
+    from app.cli import register_commands
+    register_commands(app)
 
     return app

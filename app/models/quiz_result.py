@@ -4,7 +4,7 @@ from app.extensions import db
 class QuizResult(db.Model):
     __tablename__ = 'quiz_results'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
     quiz_id = db.Column(db.BigInteger, db.ForeignKey('quizzes.id', ondelete='CASCADE'), nullable=False)
     score_percent = db.Column(db.Numeric(5, 2), nullable=False)

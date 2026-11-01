@@ -4,7 +4,7 @@ from app.extensions import db
 class PhishingExample(db.Model):
     __tablename__ = 'phishing_examples'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     example_type = db.Column(db.String(30), nullable=False)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)

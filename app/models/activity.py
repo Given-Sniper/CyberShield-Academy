@@ -4,7 +4,7 @@ from app.extensions import db
 class Activity(db.Model):
     __tablename__ = 'activities'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=True)
     admin_id = db.Column(db.BigInteger, db.ForeignKey('admins.id', ondelete='SET NULL'), nullable=True)
     activity_type = db.Column(db.String(80), nullable=False)
