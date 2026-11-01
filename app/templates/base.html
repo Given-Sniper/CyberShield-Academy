@@ -18,6 +18,15 @@
     <nav>
       {% block nav_items %}
       <span class="accent-green">CyberShield Academy</span>
+      {% if current_user.is_authenticated %}
+      <form method="post" action="{{ url_for('auth.user_logout') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">Log out</button>
+      </form>
+      {% else %}
+      <a href="{{ url_for('auth.user_login') }}">Log in</a>
+      <a href="{{ url_for('auth.user_register') }}">Register</a>
+      {% endif %}
       {% endblock %}
     </nav>
   </header>

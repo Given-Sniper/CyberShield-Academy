@@ -67,12 +67,17 @@ def create_app(config_class=DevelopmentConfig):
             scope, raw_id = user_id.split(':', 1)
             obj_id = int(raw_id)
         except (ValueError, AttributeError):
-            return db.session.get(User, int(user_id)) if str(user_id).isdigit() else None
+            return None
 
         if scope == 'admin':
-            return db.session.get(Admin, obj_id)
+            account = db.session.get(Admin, obj_id)
+            return account if account and account.is_active else None
         if scope == 'user':
-            return db.session.get(User, obj_id)
+            account = db.session.get(User, obj_id)
+            return account if account and account.is_active else None
         return None
+
+    from app.cli import register_commands
+    register_commands(app)
 
     return app

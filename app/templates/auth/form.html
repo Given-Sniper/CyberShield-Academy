@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<h1>{{ heading }}</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  {% for field in form if field.type not in ['CSRFTokenField', 'SubmitField'] %}
+  <p>{{ field.label }}<br>{{ field() }}</p>
+  {% for error in field.errors %}<p role="alert">{{ error }}</p>{% endfor %}
+  {% endfor %}
+  {{ form.submit() }}
+</form>
+<p><a href="{{ url_for('auth.user_login') }}">User login</a> · <a href="{{ url_for('auth.user_register') }}">Create account</a> · <a href="{{ url_for('auth.admin_login') }}">Admin login</a></p>
+{% endblock %}

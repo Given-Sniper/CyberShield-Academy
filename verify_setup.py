@@ -24,6 +24,7 @@ def main():
         print('❌ Setup verification failed.')
         print(f'Error: {exc}')
         print('Tip: Ensure DATABASE_URL is correct, PostgreSQL is running, and migrations are applied.')
+        raise SystemExit(1) from exc
 
 
 if __name__ == '__main__':

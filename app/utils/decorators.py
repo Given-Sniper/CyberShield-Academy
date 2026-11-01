@@ -10,7 +10,7 @@ from app.models.user import User
 def login_required_user(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not current_user.is_authenticated or not isinstance(current_user._get_current_object(), User):
+        if not current_user.is_authenticated or not current_user.is_active or not isinstance(current_user._get_current_object(), User):
             flash('Please log in as a user to access this page.', 'warning')
             return redirect(url_for('auth.user_login'))
         return func(*args, **kwargs)
@@ -21,7 +21,7 @@ def login_required_user(func):
 def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        if not current_user.is_authenticated or not isinstance(current_user._get_current_object(), Admin):
+        if not current_user.is_authenticated or not current_user.is_active or not isinstance(current_user._get_current_object(), Admin):
             flash('Please log in as an admin to access this page.', 'warning')
             return redirect(url_for('auth.admin_login'))
         return func(*args, **kwargs)

@@ -117,3 +117,21 @@ ERROR [flask_migrate] Error: Can't locate revision identified by '<revision_id>'
 The development configuration currently uses a fallback key when no key is supplied; it does not emit a warning.
 **Why this happens:** `SECRET_KEY` is empty and fallback value is being used.
 **Exact fix:** Set a strong random `SECRET_KEY` in `.env` and restart the app.
+
+## Authentication
+
+Create a user at `/auth/register`, then sign in at `/auth/login`.
+Passwords must contain 12–128 characters. Logout uses a CSRF-protected POST.
+
+Create administrators from a trusted terminal; the password is prompted securely:
+
+```bash
+flask --app run create-admin --email admin@example.com
+```
+
+Admins sign in at `/auth/admin/login`. Public admin registration is disabled.
+User and admin sessions are isolated and deactivated accounts lose access.
+Dashboard landing pages load; lessons, quizzes, phishing features and detailed
+admin tools remain placeholders. Password reset routes also remain placeholders.
+The authentication forms have CSRF protection, but rate limiting and a completed
+password reset flow are still required before a public production launch.
