@@ -67,12 +67,12 @@ def create_app(config_class=DevelopmentConfig):
             scope, raw_id = user_id.split(':', 1)
             obj_id = int(raw_id)
         except (ValueError, AttributeError):
-            return User.query.get(int(user_id)) if str(user_id).isdigit() else None
+            return db.session.get(User, int(user_id)) if str(user_id).isdigit() else None
 
         if scope == 'admin':
-            return Admin.query.get(obj_id)
+            return db.session.get(Admin, obj_id)
         if scope == 'user':
-            return User.query.get(obj_id)
+            return db.session.get(User, obj_id)
         return None
 
     return app

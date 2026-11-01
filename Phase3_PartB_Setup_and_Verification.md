@@ -29,23 +29,36 @@ MAIL_USE_TLS=True
 SESSION_COOKIE_SECURE=False
 ```
 
-## Step 3 — Initialize Flask-Migrate
+## Step 3 — Apply the Committed Migration
+
+The repository includes the migration environment and initial schema revision.
+Do not run `flask db init` again on a fresh clone.
 
 ```bash
-flask db init
+flask --app run db upgrade
 ```
 
-## Step 4 — Generate First Migration
+## Step 4 — Future Schema Changes
+
+After changing the models, generate and review a new revision, then commit it:
 
 ```bash
-flask db migrate -m "initial schema: all tables"
+flask --app run db migrate -m "describe schema change"
+flask --app run db upgrade
 ```
 
-## Step 5 — Apply Migration
+## Step 5 — Verify Setup
 
 ```bash
-flask db upgrade
+python verify_setup.py
+python -m pytest -q
 ```
+
+Tests use SQLite and cover scaffold routes, model inserts, role/session isolation,
+and migration upgrade/downgrade. PostgreSQL deployment still needs a live
+`flask --app run db upgrade` and `python verify_setup.py` check against PostgreSQL.
+Routes returning 501 are intentional scaffold placeholders; authentication,
+lessons, quizzes and admin workflows are not yet implemented.
 
 ## Step 6 — Verify Tables in PostgreSQL
 
@@ -98,12 +111,9 @@ ModuleNotFoundError: No module named 'app.blueprints.auth'
 ERROR [flask_migrate] Error: Can't locate revision identified by '<revision_id>'
 ```
 **Why this happens:** Migration history is out of sync with database state.
-**Exact fix:** Confirm migration files exist, run `flask db stamp head` (if schema already exists), then re-run `flask db migrate` and `flask db upgrade`.
+**Exact fix:** Restore the missing committed migration revision and verify the database revision with `flask --app run db current`. Only stamp a database after verifying that its entire schema matches the target revision.
 
 ### 5) SECRET_KEY not set warning
-**Exact error message:**
-```text
-WARNING: Using insecure fallback SECRET_KEY.
-```
+The development configuration currently uses a fallback key when no key is supplied; it does not emit a warning.
 **Why this happens:** `SECRET_KEY` is empty and fallback value is being used.
 **Exact fix:** Set a strong random `SECRET_KEY` in `.env` and restart the app.

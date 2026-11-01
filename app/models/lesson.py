@@ -4,7 +4,7 @@ from app.extensions import db
 class Lesson(db.Model):
     __tablename__ = 'lessons'
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.BigInteger().with_variant(db.Integer, "sqlite"), primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     content = db.Column(db.Text, nullable=False)
     category = db.Column(db.String(80), nullable=False)
